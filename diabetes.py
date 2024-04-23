@@ -4,7 +4,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import seaborn as sns
 
 #import CSV file and create dataframe
-df = pd.read_csv('/Users/victordecolvenaer/Documents/python_scripts/netflix_data/netflix.csv')
+df = pd.read_csv('/Users/victordecolvenaer/Documents/python_scripts/diabetes_data/diabetes.csv')
 
 #Exploratory Data Analysis to have insight in dataset
 column_names = str(df.columns)
@@ -12,6 +12,7 @@ tabel_format = str(df.shape)
 summary = str(df.describe)
 missing_values = str(df.isnull().sum())
 data_types = str(df.dtypes)
+info = str(df.info())
 
 #print exploratory information in txt file
 output = open('output.txt','w')
@@ -20,33 +21,22 @@ print("tabel format\n" + tabel_format, file = output)
 print("summary\n" + summary, file = output)
 print("missing value\n" + missing_values, file = output)
 print("data types\n" + data_types, file = output)
+print("info\n" + info, file = output)
 
-#print unique values in numerical columns
-movie_type = str(df['type'].unique())
-release_year = str(df['release_year'].unique())
-age_certification = str(df['age_certification'].unique())
-runtime = str(sorted(df['runtime'].unique()))
-imdb_score = str(sorted(df['imdb_score'].unique()))
-
-print("movie_type\n" + movie_type, file = output)
-print("release_year\n" + release_year, file = output)
-print("age_certification\n" + age_certification, file = output)
-print("runtime\n" + runtime, file = output)
-print("imdb_score\n" + imdb_score, file = output)
 
 #create PDF file to save figures from following visualisations
 pdf_filename = 'output_plots.pdf'
 
 #create some exploratory data visualisations
-numerical_columns = ['release_year','runtime','imdb_score']
-categorical_columns = ['type','age_certification']
+numerical_columns = ['Pregnancies','Glucose','BloodPressure','SkinThickness','Insulin','BMI','DiabetesPedigreeFunction','Age']
+categorical_columns = ['Outcome']
 correlation_matrix = df[numerical_columns].corr()
 
 
 with PdfPages(pdf_filename) as pdf_pages:
     for col in numerical_columns:
         plt.figure()
-        sns.histplot(df[col])
+        sns.violinplot(df[col])
         plt.title(col)
         pdf_pages.savefig()
         plt.close()
@@ -60,11 +50,22 @@ with PdfPages(pdf_filename) as pdf_pages:
 
     #create scatterplots with imdb_score
     figure, subplot = plt.subplots(2,2)
-    x_labels = ['release_year','runtime','imdb_votes','imdb_score']
+    x_labels = ['Pregnancies','Glucose','BloodPressure','SkinThickness']
     for i,data in enumerate(x_labels):
-        sns.scatterplot(x=df[data], y=df['imdb_score'],ax = subplot[i//2,i%2])
+        sns.scatterplot(x=df[data], y=df['Outcome'],ax = subplot[i//2,i%2])
         subplot[i//2,i%2].set_xlabel({data})
-        subplot[i//2,i%2].set_ylabel('IMDB Score')
+        subplot[i//2,i%2].set_ylabel('Outcome')
+        subplot[i//2,i%2].set_title(f'Scatterplot of {data} vs IMDB Score')
+
+    pdf_pages.savefig()
+    plt.close()
+
+    figure, subplot = plt.subplots(2,2)
+    x_lables = ['Insulin','BMI','DiabetesPedigreeFunction','Age']
+    for i,data in enumerate(x_labels):
+        sns.scatterplot(x=df[data], y=df['Outcome'],ax = subplot[i//2,i%2])
+        subplot[i//2,i%2].set_xlabel({data})
+        subplot[i//2,i%2].set_ylabel('Outcome')
         subplot[i//2,i%2].set_title(f'Scatterplot of {data} vs IMDB Score')
 
     pdf_pages.savefig()
